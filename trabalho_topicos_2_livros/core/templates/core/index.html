@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="mb-4">
+    <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill px-3 py-2 mb-3">Análise exploratória</span>
+    <h1 class="display-6 fw-bold">Amazon Book Rating Dataset</h1>
+    <p class="lead text-secondary mb-0">
+        Exploração de avaliações de livros da Amazon, incluindo perfil das notas, comportamento dos usuários,
+        tendência temporal, preços e sentimento dos comentários.
+    </p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Registros</div>
+                <h3 class="mt-2 mb-0">{{ total_rows }}</h3>
+                <small class="text-secondary">avaliações</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Colunas</div>
+                <h3 class="mt-2 mb-0">{{ total_columns }}</h3>
+                <small class="text-secondary">atributos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Preço médio</div>
+                <h3 class="mt-2 mb-0">US$ {{ price_mean }}</h3>
+                <small class="text-secondary">por livro</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Média da nota</div>
+                <h3 class="mt-2 mb-0">{{ score_mean }}</h3>
+                <small class="text-secondary">em escala 1–5</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">1) Estrutura da base de dados</h2>
+    <p class="text-secondary mb-3">
+        O conjunto possui {{ total_rows }} registros e {{ total_columns }} colunas, com informações que abrangem título,
+        preço, usuário, nota, data da avaliação, resumo e texto completo da review.
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Coluna</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in dtypes %}
+                <tr>
+                    <td>{{ item.Coluna }}</td>
+                    <td>{{ item.Tipo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">2) Dados faltantes</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Coluna</th>
+                    <th>Valores nulos</th>
+                    <th>Proporção</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in missing_table %}
+                <tr>
+                    <td>{{ item.Coluna }}</td>
+                    <td>{{ item.Quantidade }}</td>
+                    <td>{{ item.Proporcao }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="text-secondary mb-0">
+        As colunas mais impactadas por ausência de dados são <strong>Price</strong>, <strong>User_id</strong> e
+        <strong>profileName</strong>, o que precisa ser considerado em análises de preço e comportamento do usuário.
+    </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">3) Atributos mais relevantes</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <ul class="mb-0">
+                <li><strong>review/score</strong>: estabelece a percepção do usuário sobre o livro;</li>
+                <li><strong>Price</strong>: revela relação entre custo, qualidade percebida e demanda;</li>
+                <li><strong>User_id</strong>: permite identificar padrões de avaliação por consumidor;</li>
+                <li><strong>review/time</strong>: permite analisar evolução temporal das opiniões;</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul class="mb-0">
+                <li><strong>Title</strong>: mostra quais obras recebem mais atenção;</li>
+                <li><strong>review/text</strong>: servem para análise de sentimento e tendências;</li>
+                <li><strong>review/helpfulness</strong>: sinaliza o quão útil uma avaliação foi para outros leitores.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">4) Livros mais populares</h2>
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Livro</th>
+                <th>Quantidade de avaliações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in top_books %}
+            <tr>
+                <td>{{ item.Titulo }}</td>
+                <td>{{ item.Avaliacoes }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">5) Preço e distribuição das notas</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="text-secondary mb-2">Preço médio dos livros</p>
+            <h3>US$ {{ price_mean }}</h3>
+            <p class="mb-0 text-secondary">Livros com preço zero: {{ books_zero_price }}</p>
+        </div>
+        <div class="col-md-6">
+            <p class="text-secondary mb-2">Estatísticas da nota</p>
+            <ul class="mb-0">
+                <li>Média: {{ score_mean }}</li>
+                <li>Mediana: {{ score_median }}</li>
+                <li>Desvio padrão: {{ score_std }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">6) Distribuição das notas</h2>
+    {{ score_chart|safe }}
+    <div class="table-responsive mt-3">
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Nota</th>
+                    <th>Frequência</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in score_counts %}
+                <tr>
+                    <td>{{ item.Nota }}</td>
+                    <td>{{ item.Frequencia }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">7) Relação entre preço e nota</h2>
+    {{ price_score_chart|safe }}
+    <p class="text-secondary mt-3 mb-0">
+        A dispersão sugere que há avaliações positivas em várias faixas de preços, mas a relação direta entre valor mais alto e melhor nota não é tão forte.
+    </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">8) Quando as avaliações foram feitas</h2>
+    {{ time_chart|safe }}
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">9) Usuários que mais avaliaram</h2>
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Número de avaliações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in top_users %}
+            <tr>
+                <td>{{ item.Usuario }}</td>
+                <td>{{ item.Avaliacoes }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">10) Estatísticas descritivas</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Livros únicos</div>
+                <h4 class="mt-2 mb-0">{{ total_unique_books }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Média de avaliações por livro</div>
+                <h4 class="mt-2 mb-0">{{ mean_reviews_per_book }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Total de avaliações</div>
+                <h4 class="mt-2 mb-0">{{ total_rows }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">11) Avaliações mais úteis</h2>
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Usuário</th>
+                <th>Utilidade</th>
+                <th>Nota</th>
+                <th>Resumo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in useful_reviews %}
+            <tr>
+                <td>{{ item.Titulo }}</td>
+                <td>{{ item.Usuario }}</td>
+                <td>{{ item.TaxaUtilidade }}</td>
+                <td>{{ item.Nota }}</td>
+                <td>{{ item.Resumo }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">12) Sentimento das avaliações</h2>
+    <div class="row g-3 align-items-center">
+        <div class="col-lg-6">
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Positivo</span>
+                    <strong>{{ sentiment_counts.Positivo }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Neutro</span>
+                    <strong>{{ sentiment_counts.Neutro }}</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Negativo</span>
+                    <strong>{{ sentiment_counts.Negativo }}</strong>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6">
+            <p class="text-secondary mb-2">Resumo</p>
+            <p class="mb-0">
+                Em uma amostra de comentários analisados, {{ positive_reviews_ratio }}% são positivos e
+                {{ negative_reviews_ratio }}% são negativos. Isso indica que a maior parte das avaliações do dataset tende a ser favorável.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">13) Nuvem de palavras</h2>
+    <img src="{% static 'core/wordcloud.png' %}" alt="Nuvem de palavras das avaliações" class="img-fluid rounded border w-100">
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+***Passo 1 - Instalar o Python
+
+Abra o Prompt de Comando (CMD)
+
+pip install python
+
+python --version
+
+***Passo 2 - Criar um ambiente virtual se necessário 
+
+python -m venv venv
+
+***Passo 3 - Ativar o ambiente virtual
+
+venv\Scripts\activate
+
+se não funcionar 
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+repetir 
+
+venv\Scripts\activate
+
+***Passo 4 - Atualizar o pip
+
+python -m pip install --upgrade pip
+
+***Passo 5 - Instalar o Django
+
+pip install django
+
+django-admin --version
+
+***Passo 6 - Testar
+*Lembrar de testar na pata certa
+
+python manage.py runserver
+
+se não funcionar 
+
+python manage.py migrate
+
+python manage.py runserver 8080
+
+
+
+

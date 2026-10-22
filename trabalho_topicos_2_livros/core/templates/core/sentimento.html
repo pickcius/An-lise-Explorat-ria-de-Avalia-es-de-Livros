@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4">
+    <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-3 py-2 mb-3">Sentimento textual</span>
+    <h1 class="display-6 fw-bold">Análise de Sentimento</h1>
+    <p class="lead text-secondary mb-0">
+        Identificar se comentários de um dataset da Amazon são positivos, negativos ou neutros.
+    </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Objetivo</h2>
+    <p class="mb-0 text-secondary">
+        A ideia é usar a linguagem dos comentários para identificar a polaridade da avaliação. Em datasets de e-commerce,
+        textos como “amazing”, “excellent”, “horrible”, “poor” ajudam a classificar o sentimento do usuário.
+    </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Pré-processamento dos textos</h2>
+    <ul class="mb-0">
+        <li>Remover pontuação e caracteres especiais;</li>
+        <li>Converter tudo para minúsculas;</li>
+        <li>Remover stopwords (palavras muito comuns como “the”, “and”, “of”);</li>
+        <li>Tokenizar o texto em palavras;</li>
+        <li>Lematizar palavras para reduzir variações como “reading” e “read” para a base comum.</li>
+    </ul>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Vocabulário de sentimentos com VADER</h2>
+    <p class="text-secondary">
+        O VADER é uma ferramenta muito útil para textos curtos em inglês, como avaliações de produtos. Ele atribui
+        valores de polaridade e indica se o comentário está positivo, negativo ou neutro.
+    </p>
+
+    <pre class="bg-dark text-light p-3 rounded mb-0"><code>from nltk.sentiment import SentimentIntensityAnalyzer
+import nltk
+
+nltk.download('vader_lexicon')
+
+sia = SentimentIntensityAnalyzer()
+texto = "This product is amazing and works perfectly!"
+resultado = sia.polarity_scores(texto)
+print(resultado)
+
+# Se compound > 0.05 → positivo
+# Se compound < -0.05 → negativo
+# Entre -0.05 e 0.05 → neutro</code></pre>
+
+    <div class="mt-4 alert alert-info mb-0">
+        Exemplo de saída: <strong>{'neg': 0.0, 'neu': 0.364, 'pos': 0.636, 'compound': 0.8519}</strong>.<br>
+        Como o compound é maior que 0.05, a avaliação é classificada como positiva.
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Dicionário de polaridade</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <h5 class="text-success">Positivo</h5>
+                <p class="mb-0">excellent, amazing, great, loved, useful, awesome, perfect.</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <h5 class="text-danger">Negativo</h5>
+                <p class="mb-0">horrible, terrible, bad, poor, disappointing, awful, useless.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Resultado do dataset atual</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <small class="text-muted">Positivos</small>
+                <h3 class="mt-2 mb-0">{{ Positivo }}</h3>
+                <small>{{ percentual_positivo }}%</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <small class="text-muted">Neutros</small>
+                <h3 class="mt-2 mb-0">{{ Neutro }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3 h-100">
+                <small class="text-muted">Negativos</small>
+                <h3 class="mt-2 mb-0">{{ Negativo }}</h3>
+                <small>{{ percentual_negativo }}%</small>
+            </div>
+        </div>
+    </div>
+    <p class="mt-3 mb-0 text-secondary">
+        Esse resultado foi obtido com análise automática de sentimento sobre os comentários do dataset.
+        O volume de avaliações positivas indica que a maior parte das atividades tende a ser favorável ao produto ou à obra avaliada.
+    </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Machine Learning supervisionado</h2>
+    <ol class="mb-0">
+        <li>Rotular o dataset com labels: positivo, negativo ou neutro;</li>
+        <li>Treinar um classificador como Naive Bayes, SVM ou Regressão Logística;</li>
+        <li>Converter textos em vetores com Bag of Words ou TF-IDF;</li>
+        <li>Separar treino e teste para avaliar a performance do modelo;</li>
+        <li>Aplicar o modelo para prever o sentimento de novos comentários.</li>
+    </ol>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Fluxo sugerido para implementação</h2>
+    <pre class="bg-light p-3 rounded mb-0"><code>from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+
+X = df['review/text'].fillna('')
+y = df['sentimento']
+
+modelo = make_pipeline(
+    TfidfVectorizer(),
+    MultinomialNB()
+)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+modelo.fit(X_train, y_train)
+previsoes = modelo.predict(X_test)</code></pre>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Conclusão</h2>
+    <p class="mb-0 text-secondary">
+        A análise de sentimentos é uma etapa essencial para compreender o comportamento dos usuários em plataformas como a Amazon.
+        Enquanto o VADER oferece uma solução simples e eficiente para textos curtos, o aprendizado supervisionado permite criar
+        modelos mais sofisticados para prever a polaridade de comentários novos e automatizar a classificação de grandes volumes de avaliações.
+    </p>
+</div>
+{% endblock %}
