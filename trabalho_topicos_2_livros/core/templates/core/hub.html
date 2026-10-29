@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero-card text-center mb-5">
+    <span class="hub-kicker">Hub da análise</span>
+    <h1 class="display-5 fw-bold mt-3 mb-3">Amazon Book Review Explorer</h1>
+    <p class="lead mb-4 text-light mx-auto" style="max-width: 700px;">
+        Acesse rapidamente os gráficos de exploração ou a análise de sentimento dos comentários.
+    </p>
+    <div class="d-flex justify-content-center flex-wrap gap-3">
+        <a href="{% url 'graficos' %}" class="btn btn-primary btn-lg px-4 py-3">Ver gráficos</a>
+        <a href="{% url 'sentimento' %}" class="btn btn-outline-warning btn-lg px-4 py-3">Análise de sentimento</a>
+    </div>
+</div>
+{% endblock %}

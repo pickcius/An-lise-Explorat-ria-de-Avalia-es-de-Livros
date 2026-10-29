@@ -129,6 +129,19 @@ def build_dashboard_context():
     )
     time_chart.update_layout(template='plotly_white', height=420, margin=dict(l=20, r=20, t=50, b=10))
 
+    type_counts = df.dtypes.astype(str).value_counts().reset_index()
+    type_counts.columns = ['Tipo', 'Quantidade']
+    structure_chart = px.bar(
+        type_counts,
+        x='Tipo',
+        y='Quantidade',
+        title='Tipos de dados no dataset',
+        labels={'Tipo': 'Tipo de dado', 'Quantidade': 'Quantidade de colunas'},
+        color='Tipo',
+        color_discrete_sequence=['#d9b250', '#ef4444', '#f59e0b', '#fca5a5', '#b91c1c']
+    )
+    structure_chart.update_layout(template='plotly_white', height=360, margin=dict(l=20, r=20, t=50, b=10))
+
     sentiment = SentimentIntensityAnalyzer()
     sentiment_labels = []
     for text in df['review/text'].fillna('').astype(str).head(5000):
@@ -168,6 +181,7 @@ def build_dashboard_context():
         'score_chart': score_chart.to_html(full_html=False, include_plotlyjs='cdn'),
         'price_score_chart': price_score_chart.to_html(full_html=False, include_plotlyjs='cdn'),
         'time_chart': time_chart.to_html(full_html=False, include_plotlyjs='cdn'),
+        'structure_chart': structure_chart.to_html(full_html=False, include_plotlyjs='cdn'),
         'sentiment_counts': sentiment_counts,
         'positive_reviews_ratio': round((sentiment_counts['Positivo'] / sum(sentiment_counts.values())) * 100, 2),
         'negative_reviews_ratio': round((sentiment_counts['Negativo'] / sum(sentiment_counts.values())) * 100, 2),
@@ -199,8 +213,16 @@ def compute_sentiment_summary(df, sample_size=5000):
     }
 
 
-def home(request):
+def hub(request):
+    return render(request, 'core/hub.html')
+
+
+def dashboard(request):
     return render(request, 'core/index.html', build_dashboard_context())
+
+
+def home(request):
+    return hub(request)
 
 
 def sentimento(request):

@@ -56,7 +56,8 @@
         O conjunto possui {{ total_rows }} registros e {{ total_columns }} colunas, com informações que abrangem título,
         preço, usuário, nota, data da avaliação, resumo e texto completo da review.
     </p>
-    <div class="table-responsive">
+    {{ structure_chart|safe }}
+    <div class="table-responsive mt-3">
         <table class="table table-striped align-middle">
             <thead>
                 <tr>
