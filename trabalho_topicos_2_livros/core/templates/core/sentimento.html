@@ -31,23 +31,33 @@
 <div class="card p-4 mb-5">
     <h2 class="section-title">Vocabulário de sentimentos com VADER</h2>
     <p class="text-secondary">
-        O VADER é uma ferramenta muito útil para textos curtos em inglês, como avaliações de produtos. Ele atribui
-        valores de polaridade e indica se o comentário está positivo, negativo ou neutro.
+        O VADER é uma ferramenta muito útil para textos curtos em inglês, como avaliações de produtos. Neste projeto,
+        ele foi aplicado sobre todo o arquivo <strong>books-15k.csv</strong>, com aproximadamente 15 mil avaliações,
+        para que a análise reflita o conjunto real do dataset e não um exemplo incompleto.
     </p>
 
-    <pre class="bg-dark text-light p-3 rounded mb-0"><code>from nltk.sentiment import SentimentIntensityAnalyzer
+    <pre class="bg-dark text-light p-3 rounded mb-0"><code>import pandas as pd
+from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
 
 nltk.download('vader_lexicon')
 
-sia = SentimentIntensityAnalyzer()
-texto = "This product is amazing and works perfectly!"
-resultado = sia.polarity_scores(texto)
-print(resultado)
+df = pd.read_csv('books-15k.csv')
+reviews = df['review/text'].fillna('').astype(str)
 
-# Se compound > 0.05 → positivo
-# Se compound < -0.05 → negativo
-# Entre -0.05 e 0.05 → neutro</code></pre>
+sia = SentimentIntensityAnalyzer()
+labels = []
+
+for texto in reviews:
+    score = sia.polarity_scores(texto)
+    if score['compound'] > 0.05:
+        labels.append('Positivo')
+    elif score['compound'] < -0.05:
+        labels.append('Negativo')
+    else:
+        labels.append('Neutro')
+
+print(pd.Series(labels).value_counts())</code></pre>
 
     <div class="mt-4 alert alert-info mb-0">
         Exemplo de saída: <strong>{'neg': 0.0, 'neu': 0.364, 'pos': 0.636, 'compound': 0.8519}</strong>.<br>
@@ -101,6 +111,11 @@ print(resultado)
         Esse resultado foi obtido com análise automática de sentimento sobre os comentários do dataset.
         O volume de avaliações positivas indica que a maior parte das atividades tende a ser favorável ao produto ou à obra avaliada.
     </p>
+</div>
+
+<div class="card p-4 mb-5">
+    <h2 class="section-title">Distribuição por nota (1 a 5 estrelas)</h2>
+    {{ score_by_star_chart|safe }}
 </div>
 
 <div class="card p-4 mb-5">
